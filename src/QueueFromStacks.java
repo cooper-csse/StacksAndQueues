@@ -1,54 +1,50 @@
-import java.lang.reflect.Array;
 import java.util.NoSuchElementException;
+import java.util.Stack;
 
 public class QueueFromStacks<T> implements SimpleQueue {
-	private static final int CAPACITY = 5;
-
-	public  T[] array;
-	private int head;
+	private Stack<T> head;
+	private Stack<T> tail;
 	private int size;
-	private int capacity;
 
 	public QueueFromStacks() {
-		this.capacity = CAPACITY;
 		this.clear();
 	}
 
 	@Override
 	public void clear() {
-		this.array = (T[]) Array.newInstance(Object.class, this.capacity);
-		this.head = 0;
+		this.head = new Stack<>();
+		this.tail = new Stack<>();
 		this.size = 0;
 	}
 
 	@Override
 	public void enqueue(Object item) {
-		if (this.head + this.size == this.capacity) {
-			this.capacity *= 2;
-			T[] resized = (T[]) Array.newInstance(Object.class, this.capacity);
-			for (int i = 0; i < this.size; i++) {
-				resized[i] = this.array[this.head + i];
-			}
-			this.array = resized;
-			this.head = 0;
+		while (!this.tail.isEmpty()) {
+			this.head.push(this.tail.pop());
 		}
-		this.array[this.head + this.size] = (T) item;
 		this.size++;
+		this.tail.push((T) item);
 	}
 
 	@Override
 	public T dequeue() throws NoSuchElementException {
-		if (this.array[this.head] == null)
+		if (this.size == 0)
 			throw new NoSuchElementException();
-		this.size--;
-		return this.array[this.head++];
+		while (!this.head.isEmpty()) {
+			this.tail.push(this.head.pop());
+		}
+		size--;
+		return this.tail.pop();
 	}
 
 	@Override
 	public T peek() throws NoSuchElementException {
-		if (this.array[this.head] == null)
+		if (this.size == 0)
 			throw new NoSuchElementException();
-		return this.array[this.head];
+		if (this.head.size() < 1) {
+			this.head.push(this.tail.pop());
+		}
+		return this.head.firstElement();
 	}
 
 	@Override
@@ -63,8 +59,12 @@ public class QueueFromStacks<T> implements SimpleQueue {
 
 	@Override
 	public boolean contains(Object item) {
-		for (int i = 0; i < this.size; i++) {
-			if (this.array[this.head + i] == item)
+		for (T t : this.head) {
+			if (item == t)
+				return true;
+		}
+		for (T t : this.tail) {
+			if (item == t)
 				return true;
 		}
 		return false;
@@ -72,19 +72,20 @@ public class QueueFromStacks<T> implements SimpleQueue {
 
 	@Override
 	public String debugString() {
-		String output = "";
-		for (int i = 0; i < this.size; i++) {
-			output += this.array[this.head + i].toString() ;
-		}
-		return output;
+		return null;
 	}
 
 	@Override
 	public String toString() {
-		String output = "";
-		for (int i = 0; i < this.size; i++) {
-			output += this.array[this.head + i].toString() + ", ";
+		String front = "";
+		String back = "";
+		for (T h : this.head) {
+			front += h + ", ";
 		}
-		return "[" + output.substring(0, Math.max(output.length()-2, 0)) + "]";
+		for (T t : this.tail) {
+			back = t + ", " + back;
+		}
+		String output = front + back;
+		return "[" + output.substring(0, Math.max(output.length() - 2, 0)) + "]";
 	}
 }
