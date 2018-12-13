@@ -27,4 +27,28 @@ public abstract class Evaluator {
 	protected static boolean isOperator(String token) {
 		return "*/+^-()".contains(token) && token.length() == 1;
 	}
+	
+	protected static int checkPriority(String c) {
+		switch(c) {
+		case "+":
+		case "-":
+			return 1;
+		case "*":
+		case "/":
+			return 2;
+		case "^":
+			return 3;
+		default:
+			return -1;
+		}
+	}
+	
+	protected static boolean isNumeric(String c) {
+		try {
+			int i = Integer.parseInt(c);
+		}catch(NumberFormatException e) {
+			return false;
+		}
+		return true;
+	}
 }
